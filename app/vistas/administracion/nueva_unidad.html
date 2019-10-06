@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Nueva Unidad</title>
+    <link rel="stylesheet" href="../../css/bootstrap.css">
+</head>
+<body>
+
+    <div class="container">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="numeroUnidad">Número de la Unidad</label>
+              <input type="number" class="form-control" id="numeroUnidad" placeholder="Número de la Unidad">
+            </div>
+            <div class="form-group col-md-6">
+              <label for="celularUnidad">Celular</label>
+              <input type="number" class="form-control" id="celularUnidad" placeholder="Ejemplo: 991234567">
+            </div>
+            <div class="form-group col-md-6">
+              <label for="conductorUnidad">Conductor</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="conductorUnidad" placeholder="Nombre del Conductor">
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="placaUnidad">Placa</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="placaUnidad" placeholder="Ejemplo: AAC-0123">
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="modeloUnidad">Modelo</label>
+              <input type="text" class="form-control" id="modeloUnidad" placeholder="Ejemplo: Aveo">
+            </div>
+            <div class="form-group col-md-6">
+              <label for="agnoUnidad">Año</label>
+              <input type="number" class="form-control" id="agnoUnidad" placeholder="Ejemplo: 2005">
+            </div>
+            <div class="form-group col-md-6">
+              <label for="propietarioUnidad">Propietario</label>
+              <input type="text" class="form-control" id="propietarioUnidad" placeholder="Nombre del Propietario de la unidad">
+            </div>
+            <div class="form-group col-md-6">
+                <label for="chatIdUnidad">ID de Telegram</label>
+                <input type="number" class="form-control" id="chatIdUnidad" placeholder="Ejemplo: 132432434">
+              </div>
+          </div>
+          <button type="button" id="registrarUnidad" class="btn btn-primary btn-lg btn-block">Registrar Unidad</button>
+          <p style="text-align: center;" id="registro-unidad-error"></p>
+      </div>
+
+      <script>
+        const { ipcRenderer } = require('electron')
+
+        document.getElementById('registrarUnidad').addEventListener('click', () => {
+
+            const datosUnidad = {
+                numero: document.querySelector('#numeroUnidad').value,
+                celular: document.querySelector('#celularUnidad').value,
+                conductor: document.querySelector('#conductorUnidad').value,
+                placa: document.querySelector('#placaUnidad').value,
+                modelo: document.querySelector('#modeloUnidad').value,
+                agno: document.querySelector('#agnoUnidad').value,
+                propietario: document.querySelector('#propietarioUnidad').value,
+                telegram: document.querySelector('#chatIdUnidad').value
+            }
+
+            if (datosUnidad.numero.trim() == "" || datosUnidad.celular.trim() == "" || datosUnidad.conductor.trim() == "" || datosUnidad.placa.trim() == "" || datosUnidad.modelo.trim() == "" || datosUnidad.agno.trim() == "" || datosUnidad.propietario.trim() == "" || datosUnidad.telegram == "") {
+                document.querySelector('#registro-unidad-error').innerHTML = 'Debe rellenar todos los campos'
+            } else {
+                fetch('http://localhost:3500/unidades/registro', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    method: 'POST',
+                    body: JSON.stringify(datosUnidad)
+                })
+                .then(res => res.json())
+                .catch(error => console.log(error))
+                .then(data => {
+                    const {error, servidor, respuesta} = data
+                    if (error && servidor) {
+                        document.querySelector('#registro-unidad-error').innerHTML = respuesta
+                    } else {
+                        ipcRenderer.send('datos:cerrarNuevaUnidad', respuesta)
+                    }
+                })
+            }
+        })
+      </script>
+</body>
+</html>

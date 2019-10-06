@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Sistema Protaxi</title>
+    <style>
+        body {
+            padding: 0px;
+            margin: 0px;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+    </style>
+    <link rel="stylesheet" href="../css/menu.css">
+    <link rel="stylesheet" href="../css/bootstrap.css">
+    <link rel="stylesheet" href="../css/asignacion.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+
+    <nav class="menu">
+        <div class="menu__opciones">
+            <li class="menu__opcion active" id="navAsignacion">Asignacion</li>
+            <li class="menu__opcion" id="navAdministracion">Administración</li>
+            <li class="menu__opcion" id="navReportes">Reportes</li>
+            <li class="menu__opcion" id="navOperadores" style="display: none;">Operadores</li>
+            <li class="menu__opcion" id="navInfo">Info</li>
+        </div>
+    </nav>
+
+    <div id="asignacion">
+        <div class="contenedor">
+            <form id="formularioAsignarCliente">
+                Introduzca el número Telefonico del Cliente
+                <input type="number" class="input-formulario" id="numero-cliente" placeholder="0991234567">
+                <p id="numero-cliente-error"></p>
+                <button type="submit" class="boton-asignacion" id="ingresar-cliente">Ingresar</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="administracion" style="display: none;">
+        <div class="sub_menu">
+            <div class="sub_menu__opciones">
+                <li class="sub_menu__opcion">Clientes</li>
+                <li class="sub_menu__opcion">Unidades</li>
+            </div>
+        </div>
+
+        <div id="administracion_clientes_contenido" class="container" style="display: none; margin-top: 1%;">
+            <div>
+                <select id="select-clientes">
+                    <option value="nombre">Nombre</option>
+                    <option value="apellido">Apellido</option>
+                    <option value="celular">Celular</option>
+                    <option value="telefono">Teléfono</option>
+                    <option value="direccionUno">Dirección 1</option>
+                    <option value="direccionDos">Dirección 2</option>
+                </select>
+                <input type="text" id="busqueda-cliente">
+                <button class="btn btn-primary" onclick="buscarClientes()">Buscar</button>
+
+                <button class="btn btn-primary" style="float: right; margin-bottom: 1%;" onclick="registrarCliente()">+ Registrar Cliente</button>
+            </div>
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Apellido</th>
+                    <th scope="col">Celular</th>
+                    <th scope="col">Teléfono</th>
+                    <th scope="col">Dirección 1</th>
+                    <th scope="col">Dirección 2</th>
+                    <th scope="col">Editar</th>
+                    <th scope="col">Eliminar</th>
+                  </tr>
+                </thead>
+                <tbody id="filasClientes">
+                </tbody>
+            </table>
+            <p id="clientes-error"></p>
+            <button class="btn btn-primary" onclick="anterioresClientes()">Anterior</button>
+            <button class="btn btn-primary" onclick="siguientesClientes()" style="float: right">Siguiente</button>
+        </div>
+        <div id="administracion_unidades_contenido" class="container" style="display: none; margin-top: 1%;">
+            <select id="select-unidades">
+                <option value="numUnidad">Número Unidad</option>
+                <option value="celular">Celular</option>
+                <option value="conductor">Celular</option>
+                <option value="placa">Placa</option>
+                <option value="modelo">Modelo</option>
+                <option value="agno">Año</option>
+                <option value="propietario">Propietario</option>
+                <option value="chatId">ID de Telegram</option>
+            </select>
+            <input type="text" id="busqueda-unidad">
+            <button class="btn btn-primary" onclick="buscarUnidad()">Buscar</button>
+            <button class="btn btn-primary" style="float: right; margin-bottom: 1%;" onclick="registrarUnidad()">+ Registrar nueva unidad</button>
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Nro. Unidad</th>
+                    <th scope="col">Celular</th>
+                    <th scope="col">Conductor</th>
+                    <th scope="col">Placa</th>
+                    <th scope="col">Modelo</th>
+                    <th scope="col">Año</th>
+                    <th scope="col">Propietario</th>
+                    <th scope="col">ID Telegram</th>
+                    <th scope="col">Editar</th>
+                    <th scope="col">Eliminar</th>
+                  </tr>
+                </thead>
+                <tbody id="filasUnidades">
+                </tbody>
+            </table>
+            <p id="unidades-error"></p>
+            <button class="btn btn-primary" onclick="anterioresUnidades()">Anterior</button>
+            <button class="btn btn-primary" onclick="siguientesUnidades()" style="float: right">Siguiente</button>
+        </div>
+    </div>
+
+    <div id="reportes" class="container" style="display: none; margin-top: 2%;">
+        <div>
+            <select id="select-reportes">
+                <option value="cliente">Nombre Cliente</option>
+                <option value="numeroCliente">Número del Cliente</option>
+                <option value="unidad">Número Unidad</option>
+                <option value="hora">Hora</option>
+                <option value="fecha">Fecha</option>
+                <option value="operador">Operador</option>
+            </select>
+            <input type="text" id="busqueda-reportes">
+            <button class="btn btn-primary" onclick="buscarReporte()">Buscar</button>
+        </div>
+        <table class="table container">
+            <thead>
+              <tr>
+                <th scope="col">Nombre del Cliente</th>
+                <th scope="col">Número del Cliente</th>
+                <th scope="col">Unidad Asignada</th>
+                <th scope="col">Hora</th>
+                <th scope="col">Fecha</th>
+                <th scope="col">Operador</th>
+                <th scope="col">Descripción</th>
+              </tr>
+            </thead>
+            <tbody id="filasReportes">
+            </tbody>
+        </table>
+        <p id="reportes-error"></p>
+        <button class="btn btn-primary" onclick="anterioresReportes()">Anterior</button>
+        <button class="btn btn-primary" onclick="siguientesReportes()" style="float: right">Siguiente</button>
+    </div>
+
+    <div id="operadores" style="display: none;">
+        <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Apellido</th>
+                <th scope="col">Correo</th>
+                <th scope="col">Clave</th>
+                <th scope="col">Nivel</th>
+              </tr>
+            </thead>
+            <tbody id="filasOperadores">
+            </tbody>
+        </table>
+        <p id="operadores-error"></p>
+        <button class="btn btn-primary" onclick="anterioresOperadores()">Anterior</button>
+        <button class="btn btn-primary" onclick="siguientesOperadores()" style="float: right">Siguiente</button>
+    </div>
+
+    <div id="info" style="display: none;">
+        <div class="container col-md-7" style="margin-top: 5%;">
+            <h1>SOFTWARE DESARROLLADO POR TECSYSI</h1>
+            <p class="h5" style="text-align: center">Tele: 3188078</p>
+            <p class="h5" style="text-align: center">Movil: 0984585573</p>
+            <p class="h5" style="text-align: center">Dirección: Av. MARIANA DE JESÚS Urb. Portal de la hacienda 214</p>
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron')
+
+        let nivel = localStorage.getItem('nivel')
+
+        if (nivel > 1) {
+            document.getElementById('navOperadores').style.display = ""
+        }
+
+    </script>
+    <script src="../js/operadores.js"></script>
+    <script src="../js/reportes.js"></script>
+    <script src="../js/administracion.js"></script>
+    <script src="../js/asignacion.js"></script>
+    <script src="../js/menu.js"></script>
+    <script src="../js/menu2.js"></script>
+</body>
+</html>

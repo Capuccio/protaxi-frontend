@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Nuevo Cliente</title>
+      <link rel="stylesheet" href="../../css/bootstrap.css">
+</head>
+<body>
+  <div class="container">
+    <form id="registroCliente">
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="nombrecliente">Nombre</label>
+          <input type="text" class="form-control" id="nombrecliente" placeholder="Nombre">
+        </div>
+        <div class="form-group col-md-6">
+          <label for="apellidoCliente">Apellido</label>
+          <input type="text" class="form-control" id="apellidoCliente" placeholder="Apellido">
+        </div>
+        <div class="form-group col-md-6">
+          <label for="celularCliente">Número de Celular</label>
+          <div class="input-group">
+            <input type="number" class="form-control" id="celularCliente" placeholder="0991234567">
+          </div>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="telefonoCliente">Número de Teléfono</label>
+          <div class="input-group">
+            <input type="number" class="form-control" id="telefonoCliente" placeholder="000">
+          </div>
+        </div>
+        <div class="form-group col-md-12">
+          <label for="correoCliente">Correo</label>
+          <input type="email" class="form-control" id="correoCliente" placeholder="cliente@ejemplo.com">
+        </div>
+        <div class="form-group col-md-6">
+          <label for="direccionClienteUno">Dirección 1</label>
+          <textarea class="form-control" name="" id="direccionClienteUno" rows="3" placeholder="Primera dirección del cliente"></textarea>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="direccionClienteDos">Dirección 2</label>
+          <textarea class="form-control" name="" id="direccionClienteDos" rows="3" placeholder="Segunda dirección del cliente"></textarea>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg btn-block">Registrar Cliente</button>
+      <p style="text-align: center;" id="registro-cliente-error"></p>
+    </form>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron')
+
+    document.getElementById('registroCliente').addEventListener('submit', (e) => {
+      e.preventDefault()
+
+      const datosCliente = {
+        nombre: document.querySelector('#nombrecliente').value,
+        apellido: document.querySelector('#apellidoCliente').value,
+        celular: document.querySelector('#celularCliente').value,
+        telefono: document.querySelector('#telefonoCliente').value,
+        direccionuno: document.querySelector('#direccionClienteUno').value,
+        direcciondos: document.querySelector('#direccionClienteDos').value,
+        correo: document.querySelector('#correoCliente').value
+      }
+
+      fetch('http://localhost:3500/clientes/validar', {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        method: 'POST',
+        body: JSON.stringify(datosCliente)
+      })
+      .then(res => res.json())
+      .catch(error => console.log(error))
+      .then(data => {
+        if (data.error && !data.servidor) {
+          document.querySelector('#registro-cliente-error').innerHTML = data.respuesta
+        } else {
+          if (datosCliente.nombre.trim() == "" || datosCliente.apellido.trim() == "") {
+            document.querySelector('#registro-cliente-error').innerHTML = 'Debe colocar el nombre y apellido del usuario'
+          } else if (datosCliente.celular.trim() == "" && datosCliente.telefono.trim() == "") {
+            document.querySelector('#registro-cliente-error').innerHTML = 'Debe colocar por lo menos un número de celular o teléfono'
+          } else if (datosCliente.celular.trim() != "" && datosCliente.celular.length != 10) {
+            document.querySelector('#registro-cliente-error').innerHTML = 'El número de celular debe ser de 10 dígitos'
+          } else if (datosCliente.direccionuno.trim() == "" && datosCliente.direcciondos.trim() == "") {
+            document.querySelector('#registro-cliente-error').innerHTML = 'Debe colocar por lo menos una dirección'
+          } else {
+            fetch('http://localhost:3500/clientes/registro', {
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json',
+              },
+              method: 'POST',
+              body: JSON.stringify(datosCliente)
+            })
+            .then(res => res.json())
+            .catch(error => console.log(error))
+            .then(data => {
+              const {error, servidor, respuesta} = data
+              if (error && servidor) {
+                document.querySelector('#registro-cliente-error').innerHTML = respuesta
+              } else {
+                ipcRenderer.send('datos:cerrarNuevoCliente', respuesta)
+              }
+                })
+          }
+        }
+      })
+
+      
+    })
+  </script>
+</body>
+</html>

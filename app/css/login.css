@@ -1,0 +1,41 @@
+.contenedor {
+    width: 50%;
+    text-align: center;
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background-color: rgba(209, 207, 207, 0.6);
+    border-radius: 5px;
+}
+
+.formulario-fila {
+    display: inline-flex;
+}
+
+.input-label {
+    padding: 10px;
+    text-align: center;
+
+}
+
+.input-formulario {
+    width: 100%;
+    border: 1px solid white;
+    padding: 17px;
+    font-size: 17px;
+    margin: 10px;
+    border-radius: 3px;
+    background-color: rgba(209, 207, 207);
+    color: black;
+}
+
+.boton-ingresar {
+    background-image: linear-gradient(to bottom, #e8e838, #f2f28d);
+    border: none;
+    padding: 16px 32px;
+    text-decoration: none;
+    margin: 4px 2px;
+    cursor: pointer;
+}

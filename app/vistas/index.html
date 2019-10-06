@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+    <link rel="stylesheet" href="../css/login.css">
+    <style>
+        body {
+            padding: 0px;
+            margin: 0px;
+            background-image: url('../img/fondo.jpg');
+            background-size: 100%;
+            background-repeat: no-repeat;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor">
+        <form id="fomularioIniciarSesion">
+            <div class="formulario-fila">
+                <input type="text" id="usuario" class="input-formulario" placeholder="Correo">
+            </div>
+            <div class="formulario-fila">
+                <input type="password" id="clave" class="input-formulario" placeholder="Clave">
+            </div>
+            <button type="submit" class="boton-ingresar" id="prueba">Ingresar</button>
+            <p id="mensaje-respuesta"></p>
+        </form>
+    </div>
+
+    <script src="../js./titulo.js"></script>
+    <script>
+        const { ipcRenderer } = require('electron')
+
+        document.getElementById('fomularioIniciarSesion').addEventListener('submit', function(e) {
+            e.preventDefault()
+            console.log(e)
+
+            let datos = {
+                correo: document.getElementById('usuario').value,
+                clave: document.getElementById('clave').value
+            }
+
+            fetch('http://localhost:3500/operadores/login', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                method: 'POST',
+                body: JSON.stringify(datos)
+            })
+            .then(res => res.json())
+            .catch(error => console.log(error))
+            .then(respuesta => {
+                if (respuesta.error) {
+                    document.getElementById('mensaje-respuesta').innerHTML = respuesta.respuesta
+                } else {
+                    localStorage.setItem('id', respuesta.respuesta._id)
+                    localStorage.setItem('nivel', respuesta.respuesta.nivel)
+                    ipcRenderer.send('vista:inicio', 'app/vistas/inicio.html')
+                }
+            })
+        })
+    </script>
+</body>
+</html>

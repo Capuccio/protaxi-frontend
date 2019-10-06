@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Asignar cliente a unidad</title>
+    <link rel="stylesheet" href="../../css/bootstrap.css">
+</head>
+<body>
+
+    <div class="container" id="container">
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron')
+
+        ipcRenderer.on('datos:asignarcliente', async (e, datosAsignar) => {
+
+            const formulario = `
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="numerounidad">Número de Unidad a Asignar</label>
+                    <input type="text" class="form-control" value="" id="numerounidad" placeholder="Número de Unidad">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="nombrecliente">Nombre</label>
+                    <input type="text" class="form-control" value="${datosAsignar.nombre}" id="nombrecliente" placeholder="Nombre" disabled>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="apellidocliente">Apellido</label>
+                    <input type="text" class="form-control" value="${datosAsignar.apellido}" id="apellidocliente" placeholder="Apellido" disabled>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="celularcliente">Número de Celular</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control" value="${datosAsignar.celular}" id="celularcliente" placeholder="0991234567" disabled>
+                    </div>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="telefonocliente">Número de Teléfono</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control" value="${datosAsignar.telefono}" id="telefonocliente" placeholder="000" disabled>
+                    </div>
+                </div>
+                <select class="form-group custom-select mr-sm-2" id="direccioncliente">
+                    <option value="0" selected>Elegir dirección</option>
+                    <option value="1">${datosAsignar.direccionUno}</option>
+                    <option value="2">${datosAsignar.direccionDos}</option>
+                </select>
+                <div class="form-group col-md-6">
+                    <label for="descripcion">Descripción</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="descripcion">
+                    </div>
+                </div>
+                <input type="hidden" id="idUser" value="${datosAsignar._id}"
+            </div>
+            <button type="button" onclick="enviarDatos()" class="btn btn-primary btn-lg btn-block">Asignar Cliente</button>
+            <p style="text-align: center;" id="asignar-cliente-error"></p>
+            `
+
+            document.getElementById('container').innerHTML += formulario
+        })
+
+        const enviarDatos = () => {
+
+            let fecha = new Date()
+            let mes = fecha.getMonth() + 1
+            let mesTexto = mes.toString()
+            if (mesTexto.length != 2) mes = 0 + mes
+
+            let hour = fecha.getHours()
+            let hourTexto = hour.toString()
+            if (hourTexto.length != 2) {
+                var nuevaHora = `0${hour}`
+            } else {
+                var nuevaHora = hour
+            }
+
+            let minutos = fecha.getMinutes()
+            let minutosTexto = minutos.toString()
+            if (minutosTexto.length != 2) {
+                var nuevoMinuto = `0${minutos}`
+            } else {
+                var nuevoMinuto = minutos
+            }
+
+            let segundos = fecha.getSeconds()
+            let segundosTexto = segundos.toString()
+            if (segundosTexto.length != 2) {
+                var nuevoSegundo = `0${segundos}`
+            } else {
+                var nuevoSegundo = segundos
+            }
+
+
+            let hora = `${nuevaHora}:${nuevoMinuto}:${nuevoSegundo}`
+            let dia = `${fecha.getFullYear()}/${mes}/${fecha.getDate()}`
+
+            const datosEnviar = {
+                numeroUnidad: document.getElementById('numerounidad').value,
+                nombre: document.getElementById('nombrecliente').value,
+                apellido: document.getElementById('apellidocliente').value,
+                celular: document.getElementById('celularcliente').value,
+                telefono: document.getElementById('telefonocliente').value,
+                direccion: document.getElementById('direccioncliente').value,
+                idUsuario: document.getElementById('idUser').value,
+                descripcion: document.getElementById('descripcion').value,
+                hora,
+                dia
+            }
+
+            if (datosEnviar.direccion.trim() == "" || datosEnviar.direccion == 0) {
+                document.getElementById('asignar-cliente-error').innerHTML = 'No ha escogido una dirección válida'
+            } else if (datosEnviar.numeroUnidad.trim() == "") {
+                document.getElementById('asignar-cliente-error').innerHTML = 'Debe escoger una unidad'
+            } else {
+                const id_operador = localStorage.getItem('id')
+                fetch('http://localhost:3500/unidades/asignar', {
+                    headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Datosoperador': id_operador,
+                    },
+                    method: 'POST',
+                    body: JSON.stringify(datosEnviar)
+                })
+                .then(res => res.json())
+                .catch(error => console.log(error))
+                .then(data => {
+                    const { error, servidor, respuesta } = data
+                    if (error && servidor) {
+                        document.getElementById('asignar-cliente-error').innerHTML = respuesta
+                    } else if (error && !servidor) {
+                        document.getElementById('asignar-cliente-error').innerHTML = respuesta
+                    } else {
+                        ipcRenderer.send('datos:cerrarAsignarCliente', respuesta)
+                    }
+                })
+            }
+        }
+    </script>
+</body>
+</html>
